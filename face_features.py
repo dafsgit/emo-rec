@@ -22,6 +22,7 @@ def getLandmarksPerFrame(vid):
     cap = cv2.VideoCapture(vid)
     if (cap.isOpened()== False):
         print("Error opening video file")
+    neutral = []
     result = []
     while(cap.isOpened()):
         ret, fr = cap.read()
@@ -46,11 +47,27 @@ def getLandmarksPerFrame(vid):
                     face.append((xFaceFrame, yFaceFrame))
                 frame.append(face)
             result.append(frame)
-            # cv2.imshow('Face feature detection', fr)
+            if len(result) == 11:
+                neutral = frame
+                # while True:
+                #     cv2.imshow('Face feature detection', fr)
+                #     if cv2.waitKey(delay=1) == 27:
+                #         return
         else:
             break
     cap.release()
-    return result
+    return [neutral, result]
+
+
+def clean(students):
+    for s in students:
+        rem = []
+        for j, frame in enumerate(s):
+            if len(frame) < 1:
+                rem.append(j)
+        if len(rem) > 0:
+            for k in reversed(rem):
+                del s[k]
 
 
 vidPath = "C:/Users/dafne/Downloads/face_recordings/"
@@ -67,24 +84,51 @@ for i, st in enumerate(students):
     })
 # print(stIDs)
 
-# dirs = ["F2"]
+# files = Path(vidPath).glob('Re_Face_*.mp4')
+# for file in files:
+#     vidName = os.path.basename(file)[:-4]
+#     # landmarks per frame for every video in the part dir
+#     print('.', end='')
+#     getLandmarksPerFrame(str(file))
+
+# dirs = ["F1"]
 dirs = it.keys()
 samples = {key:[] for key in dirs}
+neuFaces = {key:[] for key in dirs}
 for part in dirs:
     files = Path(vidPath + part + "/").glob('Re_Face_*.mp4')
     print("Part " + part)
     for file in files:
-        vidName = os.path.basename(file)[:-4]
-        # landmarks per frame for every video in the part dir
+        # vidName = os.path.basename(file)[:-4]
+        # landmarks per frame per video in the part dir
         print('.', end='')
-        samples[part].append(getLandmarksPerFrame(str(file)))
+        neu, res = getLandmarksPerFrame(str(file))
+        neuFaces[part].append(neu)
+        samples[part].append(res)
     print("")
-    for i, result in enumerate(samples[part]):
-        # result dim = n-frames x n-faces x 68 tuples
-        print("    Subject " + str(i) + " has ", end='')
-        print(str(len(result)) + " frames each with ", end='')
-        # 10th frame must have points already (at 1 sec)
-        print(str(len(result[10])) + " faces each with ", end='') 
-        print(str(len(result[10][0])) + " points.")
+    # for i, result in enumerate(samples[part]):
+    #     # result dimentions = n-frames x n-faces x 68 tuples
+    #     print("    Subject " + str(i) + " has ", end='')
+    #     print(str(len(result)) + " frames each with ", end='')
+    #     print(str(len(result[10])) + " faces each with ", end='') 
+    #     print(str(len(result[10][0])) + " points.")
+
+differences = {key:[] for key in dirs}
+for part in dirs:
+    for i, student in enumerate(samples[part]):
+        dRes = []
+        for j, frame in enumerate(student):
+            dFr = []
+            if len(frame) > 0:
+                for k, face in enumerate(neuFaces[part][i]):
+                    dFa = []
+                    for l, (xn, yn) in enumerate(face):
+                        frCoord = frame[k][l]
+                        xD = frCoord[0] - xn
+                        yD = frCoord[1] - yn
+                        dFa.append((xD, yD))
+                    dFr.append(dFa)
+            dRes.append(dFr)
+        differences[part].append(dRes)
 
 cv2.destroyAllWindows()
