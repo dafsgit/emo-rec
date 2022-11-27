@@ -70,6 +70,26 @@ def clean(students):
                 del s[k]
 
 
+def getDiff(students, neuFacesPart):
+    diffPart = []
+    for i, student in enumerate(students):
+        dRes = []
+        for j, frame in enumerate(student):
+            dFr = []
+            if len(frame) > 0:
+                for k, face in enumerate(neuFacesPart[i]):
+                    dFa = []
+                    for l, (xn, yn) in enumerate(face):
+                        frCoord = frame[k][l]
+                        xD = frCoord[0] - xn
+                        yD = frCoord[1] - yn
+                        dFa.append((xD, yD))
+                    dFr.append(dFa)
+            dRes.append(dFr)
+        diffPart.append(dRes)
+    return diffPart
+
+
 vidPath = "C:/Users/dafne/Downloads/face_recordings/"
 # vidName = "Re_Face_Massimiliano_2022-10-25-10_01_14"
 vidExt = ".mp4"
@@ -95,6 +115,8 @@ for i, st in enumerate(students):
 dirs = it.keys()
 samples = {key:[] for key in dirs}
 neuFaces = {key:[] for key in dirs}
+differences = {key:[] for key in dirs}
+
 for part in dirs:
     files = Path(vidPath + part + "/").glob('Re_Face_*.mp4')
     print("Part " + part)
@@ -113,22 +135,9 @@ for part in dirs:
     #     print(str(len(result[10])) + " faces each with ", end='') 
     #     print(str(len(result[10][0])) + " points.")
 
-differences = {key:[] for key in dirs}
 for part in dirs:
-    for i, student in enumerate(samples[part]):
-        dRes = []
-        for j, frame in enumerate(student):
-            dFr = []
-            if len(frame) > 0:
-                for k, face in enumerate(neuFaces[part][i]):
-                    dFa = []
-                    for l, (xn, yn) in enumerate(face):
-                        frCoord = frame[k][l]
-                        xD = frCoord[0] - xn
-                        yD = frCoord[1] - yn
-                        dFa.append((xD, yD))
-                    dFr.append(dFa)
-            dRes.append(dFr)
-        differences[part].append(dRes)
+    differences[part] = getDiff(samples[part], neuFaces[part])
+
+
 
 cv2.destroyAllWindows()
