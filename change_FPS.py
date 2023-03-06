@@ -1,6 +1,7 @@
 # Author: Dafne Vania Peña Cortés
 # This program converts a 20 fps video to 10 fps, removing every other frame
 # so the resulting video has the same lenght as the original.
+# [Step 1]
 
 import os
 import cv2

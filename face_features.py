@@ -1,6 +1,7 @@
 # Author: Dafne Vania Peña Cortés
 # This program produces a dictionary with every significant part of a PBL
 # containing the 68 landmarks of every face per frame per student.
+# [Not used for the final program]
 
 import os
 from pathlib import Path

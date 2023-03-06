@@ -1,3 +1,8 @@
+# Author: Dafne Vania Peña Cortés
+# This program converts a video in images and saves the frames
+# inside the indicated folder.
+# [Step 3]
+
 import os
 import cv2
 import dlib

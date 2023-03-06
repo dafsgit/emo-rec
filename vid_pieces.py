@@ -1,6 +1,7 @@
 # Author: Dafne Vania Peña Cortés
 # This program divides a group of videos into smaller
 # pieces limited by the seconds in "it" array.
+# [Step 2]
 
 import os
 from pathlib import Path
